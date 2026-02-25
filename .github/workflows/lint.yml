@@ -5,10 +5,17 @@ on:
     branches: [main]
     paths:
       - 'contracts/*.md'
+      - 'templates/*.md'
+      - '.textlintrc'
+      - '.github/workflows/lint.yml'
   pull_request:
     branches: [main]
     paths:
       - 'contracts/*.md'
+      - 'templates/*.md'
+      - '.textlintrc'
+      - '.github/workflows/lint.yml'
+  workflow_dispatch:
 
 jobs:
   lint:

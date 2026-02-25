@@ -5,10 +5,14 @@ on:
     branches: [main]
     paths:
       - 'contracts/*.md'
+      - 'templates/*.md'
+      - '.github/workflows/build.yml'
   pull_request:
     branches: [main]
     paths:
       - 'contracts/*.md'
+      - 'templates/*.md'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 jobs:
