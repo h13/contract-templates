@@ -35,4 +35,4 @@ jobs:
         run: npm ci
       
       - name: Run textlint
-        run: npx textlint contracts/*.md
+        run: npx textlint templates/**/*.md

@@ -26,7 +26,20 @@ jobs:
       - name: Build Word documents
         run: |
           mkdir -p dist
-          for file in contracts/*.md; do
+          # Create default template if not exists
+          if [ ! -f templates/reference.docx ]; then
+            echo "Creating default Word template..."
+            echo "# Template" | docker run --rm -i -v "$PWD:/data" -w /data pandoc/core:latest \
+              pandoc -o templates/reference.docx
+          fi
+          # Build contracts
+          for file in templates/contracts/*.md; do
+            docker run --rm -v "$PWD:/data" -w /data pandoc/core:latest \
+              pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
+              --reference-doc=templates/reference.docx
+          done
+          # Build regulations
+          for file in templates/regulations/*.md; do
             docker run --rm -v "$PWD:/data" -w /data pandoc/core:latest \
               pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
               --reference-doc=templates/reference.docx
