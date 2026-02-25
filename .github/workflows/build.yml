@@ -18,30 +18,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+
       - name: Build Word documents
         run: |
           mkdir -p dist
           # Create default template if not exists
           if [ ! -f templates/reference.docx ]; then
             echo "Creating default Word template..."
-            docker run --rm -v "$PWD:/data" -w /data pandoc/core:latest \
-              pandoc templates/template.md -o templates/reference.docx
+            pandoc templates/template.md -o templates/reference.docx
           fi
           # Build contracts
           for file in templates/contracts/*.md; do
-            docker run --rm -v "$PWD:/data" -w /data pandoc/core:latest \
-              pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
+            pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
               --reference-doc=templates/reference.docx
           done
           # Build regulations
           for file in templates/regulations/*.md; do
-            docker run --rm -v "$PWD:/data" -w /data pandoc/core:latest \
-              pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
+            pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
               --reference-doc=templates/reference.docx
           done
       
