@@ -29,9 +29,8 @@ jobs:
           # Create default template if not exists
           if [ ! -f templates/reference.docx ]; then
             echo "Creating default Word template..."
-            echo "# Template" > /tmp/template.md
-            docker run --rm -v "$PWD:/data" -v "/tmp:/tmp" -w /data pandoc/core:latest \
-              pandoc /tmp/template.md -o templates/reference.docx
+            docker run --rm -v "$PWD:/data" -w /data pandoc/core:latest \
+              pandoc templates/template.md -o templates/reference.docx
           fi
           # Build contracts
           for file in templates/contracts/*.md; do
