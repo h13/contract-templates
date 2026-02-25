@@ -5,7 +5,22 @@
   "filters": {},
   "rules": {
     "preset-japanese": true,
-    "preset-jtf-style": true,
-    "terminology": true
+    "preset-jtf-style": {
+      "1.2.1.句点(。)と読点(、)": true,
+      "1.2.2.ピリオド(.)とカンマ(,)": true,
+      "2.1.5.文体の統一": true,
+      "2.1.10.算用数字の使用": true,
+      "3.1.1.全角文字と半角文字の間": true
+    },
+    "terminology": true,
+    "max-ten": {
+      "max": 3
+    },
+    "no-mix-dearu-desumasu": {
+      "preferInHeader": "",
+      "preferInBody": "である",
+      "preferInList": "である",
+      "strict": false
+    }
   }
 }
