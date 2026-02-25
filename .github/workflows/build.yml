@@ -1,0 +1,37 @@
+name: Build Word Documents
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'contracts/*.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'contracts/*.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Build Word documents
+        uses: docker://pandoc/core:latest
+        with:
+          args: >
+            --output-dir=dist
+            --from=markdown
+            --to=docx
+            --reference-doc=templates/reference.docx
+            contracts/*.md
+      
+      - name: Upload Word documents
+        uses: actions/upload-artifact@v4
+        with:
+          name: word-documents
+          path: dist/*.docx
+          retention-days: 30
