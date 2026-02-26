@@ -24,11 +24,13 @@ const { Content } = await regulation.render();
         <span class="date">作成日: {regulation.data.created_at}</span>
         <span class="review">次回レビュー: {regulation.data.next_review}</span>
       </div>
-      <div class="tags">
-        {regulation.data.tags.map((tag: string) => (
-          <span class="tag">{tag}</span>
-        ))}
-      </div>
+      {regulation.data.tags && regulation.data.tags.length > 0 && (
+        <div class="tags">
+          {regulation.data.tags.map((tag) => (
+            <span class="tag">{String(tag)}</span>
+          ))}
+        </div>
+      )}
       <div class="actions">
         <a href={`/api/regulations/${regulation.slug}.docx`} class="button">Wordダウンロード</a>
         <a href={`/api/regulations/${regulation.slug}.pdf`} class="button">PDFダウンロード</a>

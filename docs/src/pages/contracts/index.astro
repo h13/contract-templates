@@ -28,11 +28,13 @@ const contractsByType = contracts.reduce((acc, contract) => {
               <span class="version">v{contract.data.version}</span>
               <span class="date">{contract.data.created_at}</span>
             </div>
-            <p class="tags">
-              {contract.data.tags.map((tag: string) => (
-                <span class="tag">{tag}</span>
-              ))}
-            </p>
+            {contract.data.tags && contract.data.tags.length > 0 && (
+              <p class="tags">
+                {contract.data.tags.map((tag) => (
+                  <span class="tag">{String(tag)}</span>
+                ))}
+              </p>
+            )}
           </a>
         ))}
       </div>

@@ -28,11 +28,13 @@ const regulationsByType = regulations.reduce((acc, regulation) => {
               <span class="version">v{regulation.data.version}</span>
               <span class="date">{regulation.data.created_at}</span>
             </div>
-            <p class="tags">
-              {regulation.data.tags.map((tag: string) => (
-                <span class="tag">{tag}</span>
-              ))}
-            </p>
+            {regulation.data.tags && regulation.data.tags.length > 0 && (
+              <p class="tags">
+                {regulation.data.tags.map((tag) => (
+                  <span class="tag">{String(tag)}</span>
+                ))}
+              </p>
+            )}
           </a>
         ))}
       </div>
