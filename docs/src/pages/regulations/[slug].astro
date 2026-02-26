@@ -14,15 +14,15 @@ const regulation = Astro.props;
 const { Content } = await regulation.render();
 ---
 
-<BaseLayout title={regulation.data.title}>
+<BaseLayout title={regulation.data.title || 'Untitled'}>
   <article class="regulation">
     <header>
-      <h1>{regulation.data.title}</h1>
+      <h1>{regulation.data.title || 'Untitled Regulation'}</h1>
       <div class="meta">
-        <span class="type">タイプ: {regulation.data.type}</span>
-        <span class="version">バージョン: {regulation.data.version}</span>
-        <span class="date">作成日: {regulation.data.created_at}</span>
-        <span class="review">次回レビュー: {regulation.data.next_review}</span>
+        {regulation.data.type && <span class="type">タイプ: {regulation.data.type}</span>}
+        {regulation.data.version && <span class="version">バージョン: {regulation.data.version}</span>}
+        {regulation.data.created_at && <span class="date">作成日: {regulation.data.created_at}</span>}
+        {regulation.data.next_review && <span class="review">次回レビュー: {regulation.data.next_review}</span>}
       </div>
       {regulation.data.tags && regulation.data.tags.length > 0 && (
         <div class="tags">
@@ -31,17 +31,13 @@ const { Content } = await regulation.render();
           ))}
         </div>
       )}
-      <div class="actions">
-        <a href={`/api/regulations/${regulation.slug}.docx`} class="button">Wordダウンロード</a>
-        <a href={`/api/regulations/${regulation.slug}.pdf`} class="button">PDFダウンロード</a>
-      </div>
     </header>
     <div class="content">
       <Content />
     </div>
     <footer>
-      <p>作成者: {regulation.data.created_by}</p>
-      <p>レビュー頻度: {regulation.data.review_frequency}</p>
+      {regulation.data.created_by && <p>作成者: {regulation.data.created_by}</p>}
+      {regulation.data.review_frequency && <p>レビュー頻度: {regulation.data.review_frequency}</p>}
       {regulation.data.source && (
         <p>
           インポート元: {regulation.data.source.imported_from} ({regulation.data.source.imported_date})
