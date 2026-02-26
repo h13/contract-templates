@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+// 全テンプレートを取得
+const contracts = await getCollection('contracts');
+const regulations = await getCollection('regulations');
+
+// 統計情報
+const stats = {
+  contracts: contracts.length,
+  regulations: regulations.length,
+  total: contracts.length + regulations.length,
+};
+---
+
+<BaseLayout title="Contract Templates - 契約書ひな形・社内規定管理">
+  <h1>Contract Templates</h1>
+  <p>Markdownベースの契約書ひな形・社内規定管理システム</p>
+
+  <section class="stats">
+    <h2>統計情報</h2>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <h3>契約書</h3>
+        <p class="number">{stats.contracts}</p>
+      </div>
+      <div class="stat-card">
+        <h3>社内規定</h3>
+        <p class="number">{stats.regulations}</p>
+      </div>
+      <div class="stat-card">
+        <h3>合計</h3>
+        <p class="number">{stats.total}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="recent">
+    <h2>最近追加されたテンプレート</h2>
+    <div class="template-list">
+      {contracts.slice(0, 5).map((contract) => (
+        <a href={`/contracts/${contract.slug}`} class="template-card">
+          <h3>{contract.data.title}</h3>
+          <p>タイプ: {contract.data.type}</p>
+          <p>作成日: {contract.data.created_at}</p>
+        </a>
+      ))}
+      {regulations.slice(0, 5).map((regulation) => (
+        <a href={`/regulations/${regulation.slug}`} class="template-card">
+          <h3>{regulation.data.title}</h3>
+          <p>タイプ: {regulation.data.type}</p>
+          <p>作成日: {regulation.data.created_at}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="features">
+    <h2>機能</h2>
+    <ul>
+      <li>✅ Markdownベースの管理</li>
+      <li>✅ GitHub Actionsによる自動変換</li>
+      <li>✅ textlintによる品質チェック</li>
+      <li>✅ Word/PDF/HTML出力</li>
+      <li>✅ 検索・フィルタリング</li>
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stats {
+    margin: 2rem 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-card {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .stat-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: #666;
+  }
+
+  .stat-card .number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #0070f3;
+    margin: 0;
+  }
+
+  .recent {
+    margin: 2rem 0;
+  }
+
+  .template-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .template-card {
+    display: block;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .template-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .template-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+  }
+
+  .template-card p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .features {
+    margin: 2rem 0;
+  }
+
+  .features ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .features li {
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+  }
+</style>

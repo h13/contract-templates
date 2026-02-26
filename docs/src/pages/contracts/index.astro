@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const contracts = await getCollection('contracts');
+
+// タイプでグループ化
+const contractsByType = contracts.reduce((acc, contract) => {
+  const type = contract.data.type;
+  if (!acc[type]) acc[type] = [];
+  acc[type].push(contract);
+  return acc;
+}, {} as Record<string, typeof contracts>);
+---
+
+<BaseLayout title="契約書テンプレート一覧">
+  <h1>契約書テンプレート</h1>
+  <p>全部で {contracts.length} 件の契約書テンプレートがあります。</p>
+
+  {Object.entries(contractsByType).map(([type, contracts]) => (
+    <section>
+      <h2>{type.toUpperCase()}</h2>
+      <div class="contract-grid">
+        {contracts.map((contract) => (
+          <a href={`/contracts/${contract.slug}/`} class="contract-card">
+            <h3>{contract.data.title}</h3>
+            <div class="meta">
+              <span class="version">v{contract.data.version}</span>
+              <span class="date">{contract.data.created_at}</span>
+            </div>
+            <p class="tags">
+              {contract.data.tags.map((tag: string) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </p>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  section {
+    margin: 2rem 0;
+  }
+
+  .contract-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .contract-card {
+    display: block;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .contract-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .contract-card h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.3rem;
+  }
+
+  .meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .tags {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: #f0f0f0;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #666;
+  }
+</style>

@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const regulations = await getCollection('regulations');
+  return regulations.map((regulation) => ({
+    params: { slug: regulation.slug },
+    props: regulation,
+  }));
+}
+
+const regulation = Astro.props;
+const { Content } = await regulation.render();
+---
+
+<BaseLayout title={regulation.data.title}>
+  <article class="regulation">
+    <header>
+      <h1>{regulation.data.title}</h1>
+      <div class="meta">
+        <span class="type">タイプ: {regulation.data.type}</span>
+        <span class="version">バージョン: {regulation.data.version}</span>
+        <span class="date">作成日: {regulation.data.created_at}</span>
+        <span class="review">次回レビュー: {regulation.data.next_review}</span>
+      </div>
+      <div class="tags">
+        {regulation.data.tags.map((tag: string) => (
+          <span class="tag">{tag}</span>
+        ))}
+      </div>
+      <div class="actions">
+        <a href={`/api/regulations/${regulation.slug}.docx`} class="button">Wordダウンロード</a>
+        <a href={`/api/regulations/${regulation.slug}.pdf`} class="button">PDFダウンロード</a>
+      </div>
+    </header>
+    <div class="content">
+      <Content />
+    </div>
+    <footer>
+      <p>作成者: {regulation.data.created_by}</p>
+      <p>レビュー頻度: {regulation.data.review_frequency}</p>
+      {regulation.data.source && (
+        <p>
+          インポート元: {regulation.data.source.imported_from} ({regulation.data.source.imported_date})
+        </p>
+      )}
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+  }
+
+  h1 {
+    margin: 0 0 1rem 0;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #f0f0f0;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  .actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #0070f3;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .button:hover {
+    background: #0051cc;
+  }
+
+  .content {
+    line-height: 1.8;
+  }
+
+  .content h1,
+  .content h2,
+  .content h3,
+  .content h4 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .content h2 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+  }
+
+  .content p {
+    margin: 1rem 0;
+  }
+
+  .content ul,
+  .content ol {
+    padding-left: 2rem;
+    margin: 1rem 0;
+  }
+
+  .content code {
+    background: #f4f4f4;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #666;
+  }
+</style>

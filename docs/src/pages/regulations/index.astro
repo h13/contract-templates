@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const regulations = await getCollection('regulations');
+
+// タイプでグループ化
+const regulationsByType = regulations.reduce((acc, regulation) => {
+  const type = regulation.data.type;
+  if (!acc[type]) acc[type] = [];
+  acc[type].push(regulation);
+  return acc;
+}, {} as Record<string, typeof regulations>);
+---
+
+<BaseLayout title="社内規定テンプレート一覧">
+  <h1>社内規定テンプレート</h1>
+  <p>全部で {regulations.length} 件の社内規定テンプレートがあります。</p>
+
+  {Object.entries(regulationsByType).map(([type, regulations]) => (
+    <section>
+      <h2>{type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h2>
+      <div class="regulation-grid">
+        {regulations.map((regulation) => (
+          <a href={`/regulations/${regulation.slug}/`} class="regulation-card">
+            <h3>{regulation.data.title}</h3>
+            <div class="meta">
+              <span class="version">v{regulation.data.version}</span>
+              <span class="date">{regulation.data.created_at}</span>
+            </div>
+            <p class="tags">
+              {regulation.data.tags.map((tag: string) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </p>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  section {
+    margin: 2rem 0;
+  }
+
+  .regulation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .regulation-card {
+    display: block;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .regulation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .regulation-card h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.3rem;
+  }
+
+  .meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .tags {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: #f0f0f0;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #666;
+  }
+</style>
