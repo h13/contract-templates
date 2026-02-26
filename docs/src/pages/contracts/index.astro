@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
+const base = import.meta.env.BASE_URL;
 const contracts = await getCollection('contracts');
 
 // タイプでグループ化
@@ -19,14 +20,14 @@ const contractsByType = contracts.reduce((acc, contract) => {
 
   {Object.entries(contractsByType).map(([type, contracts]) => (
     <section>
-      <h2>{type.toUpperCase()}</h2>
+      <h2>{type ? String(type).toUpperCase() : 'OTHER'}</h2>
       <div class="contract-grid">
         {contracts.map((contract) => (
-          <a href={`/contracts/${contract.slug}/`} class="contract-card">
-            <h3>{contract.data.title}</h3>
+          <a href={`${base}/contracts/${contract.slug}/`} class="contract-card">
+            <h3>{contract.data.title || 'Untitled'}</h3>
             <div class="meta">
-              <span class="version">v{contract.data.version}</span>
-              <span class="date">{contract.data.created_at}</span>
+              <span class="version">v{contract.data.version || '1.0'}</span>
+              <span class="date">{contract.data.created_at || ''}</span>
             </div>
             {contract.data.tags && contract.data.tags.length > 0 && (
               <p class="tags">
