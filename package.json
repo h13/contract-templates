@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "契約書テンプレート管理（Markdown → Word 変換）",
   "scripts": {
-    "lint": "textlint contracts/*.md",
-    "lint:fix": "textlint --fix contracts/*.md",
+    "lint": "textlint templates/**/*.md",
+    "lint:fix": "textlint --fix templates/**/*.md",
     "build": "pandoc contracts/*.md -o dist/ --reference-doc=templates/reference.docx"
   },
   "devDependencies": {
