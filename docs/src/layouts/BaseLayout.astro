@@ -18,9 +18,9 @@ const { title } = Astro.props;
   <body>
     <header>
       <nav>
-        <a href="/">ホーム</a>
-        <a href="/contracts/">契約書</a>
-        <a href="/regulations/">社内規定</a>
+        <a href={`${import.meta.env.BASE_URL}/`}>ホーム</a>
+        <a href={`${import.meta.env.BASE_URL}/contracts/`}>契約書</a>
+        <a href={`${import.meta.env.BASE_URL}/regulations/`}>社内規定</a>
       </nav>
     </header>
     <main>

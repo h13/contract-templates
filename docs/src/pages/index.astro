@@ -6,6 +6,9 @@ import { getCollection } from 'astro:content';
 const contracts = await getCollection('contracts');
 const regulations = await getCollection('regulations');
 
+// ベースパス
+const base = import.meta.env.BASE_URL;
+
 // 統計情報
 const stats = {
   contracts: contracts.length,
@@ -40,14 +43,14 @@ const stats = {
     <h2>最近追加されたテンプレート</h2>
     <div class="template-list">
       {contracts.slice(0, 5).map((contract) => (
-        <a href={`/contracts/${contract.slug}`} class="template-card">
+        <a href={`${base}/contracts/${contract.slug}`} class="template-card">
           <h3>{contract.data.title}</h3>
           <p>タイプ: {contract.data.type}</p>
           <p>作成日: {contract.data.created_at}</p>
         </a>
       ))}
       {regulations.slice(0, 5).map((regulation) => (
-        <a href={`/regulations/${regulation.slug}`} class="template-card">
+        <a href={`${base}/regulations/${regulation.slug}`} class="template-card">
           <h3>{regulation.data.title}</h3>
           <p>タイプ: {regulation.data.type}</p>
           <p>作成日: {regulation.data.created_at}</p>
