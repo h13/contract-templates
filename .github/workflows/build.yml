@@ -1,4 +1,4 @@
-name: Build Word Documents
+name: Build Documents
 
 on:
   push:
@@ -12,6 +12,11 @@ on:
       - 'templates/**/*.md'
       - '.github/workflows/build.yml'
   workflow_dispatch:
+    inputs:
+      formats:
+        description: 'Output formats (comma-separated: docx,pdf,html)'
+        required: false
+        default: 'docx,pdf'
 
 jobs:
   build:
@@ -21,31 +26,108 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install pandoc
-        run: sudo apt-get install -y pandoc
+      - name: Install pandoc and texlive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive-xetex texlive-fonts-recommended texlive-fonts-extra
 
-      - name: Build Word documents
+      - name: Create default template if not exists
         run: |
           mkdir -p dist
-          # Create default template if not exists
           if [ ! -f templates/reference.docx ]; then
             echo "Creating default Word template..."
             pandoc templates/template.md -o templates/reference.docx
           fi
+
+      - name: Build Word documents
+        run: |
+          echo "Building Word documents..."
           # Build contracts
           for file in templates/contracts/*.md; do
-            pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
-              --reference-doc=templates/reference.docx
+            if [ -f "$file" ]; then
+              pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
+                --reference-doc=templates/reference.docx
+              echo "✓ Built: $(basename "${file%.md}.docx")"
+            fi
           done
           # Build regulations
           for file in templates/regulations/*.md; do
-            pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
-              --reference-doc=templates/reference.docx
+            if [ -f "$file" ]; then
+              pandoc "$file" -o "dist/$(basename "${file%.md}.docx")" \
+                --reference-doc=templates/reference.docx
+              echo "✓ Built: $(basename "${file%.md}.docx")"
+            fi
           done
-      
-      - name: Upload Word documents
+
+      - name: Build PDF documents
+        run: |
+          echo "Building PDF documents..."
+          # Build contracts
+          for file in templates/contracts/*.md; do
+            if [ -f "$file" ]; then
+              pandoc "$file" -o "dist/$(basename "${file%.md}.pdf")" \
+                --pdf-engine=xelatex \
+                -V CJKmainfont="Noto Sans CJK JP"
+              echo "✓ Built: $(basename "${file%.md}.pdf")"
+            fi
+          done
+          # Build regulations
+          for file in templates/regulations/*.md; do
+            if [ -f "$file" ]; then
+              pandoc "$file" -o "dist/$(basename "${file%.md}.pdf")" \
+                --pdf-engine=xelatex \
+                -V CJKmainfont="Noto Sans CJK JP"
+              echo "✓ Built: $(basename "${file%.md}.pdf")"
+            fi
+          done
+
+      - name: Build HTML documents
+        run: |
+          echo "Building HTML documents..."
+          # Build contracts
+          for file in templates/contracts/*.md; do
+            if [ -f "$file" ]; then
+              pandoc "$file" -o "dist/$(basename "${file%.md}.html")" \
+                --standalone \
+                --metadata title="$(basename "${file%.md}")"
+              echo "✓ Built: $(basename "${file%.md}.html")"
+            fi
+          done
+          # Build regulations
+          for file in templates/regulations/*.md; do
+            if [ -f "$file" ]; then
+              pandoc "$file" -o "dist/$(basename "${file%.md}.html")" \
+                --standalone \
+                --metadata title="$(basename "${file%.md}")"
+              echo "✓ Built: $(basename "${file%.md}.html")"
+            fi
+          done
+
+      - name: Upload documents
         uses: actions/upload-artifact@v4
         with:
-          name: word-documents
-          path: dist/*.docx
+          name: documents
+          path: dist/
           retention-days: 30
+
+      - name: Create index
+        run: |
+          echo "# Generated Documents" > dist/README.md
+          echo "" >> dist/README.md
+          echo "This directory contains auto-generated documents." >> dist/README.md
+          echo "" >> dist/README.md
+          echo "## Files" >> dist/README.md
+          echo "" >> dist/README.md
+          for file in dist/*; do
+            if [ -f "$file" ] && [ "$(basename "$file")" != "README.md" ]; then
+              echo "- $(basename "$file")" >> dist/README.md
+            fi
+          done
+
+      - name: Commit generated files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add dist/
+          git diff --quiet && git diff --staged --quiet || git commit -m "docs: Update generated documents"
+          git push
