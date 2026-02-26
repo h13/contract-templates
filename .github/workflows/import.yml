@@ -1,0 +1,181 @@
+name: Import Documents
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'imports/**/*.docx'
+      - 'imports/**/*.pdf'
+  workflow_dispatch:
+    inputs:
+      file:
+        description: 'Specific file to import (optional)'
+        required: false
+      type:
+        description: 'Document type'
+        required: true
+        default: 'regulation'
+        type: choice
+        options:
+          - contract
+          - regulation
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install pandoc and poppler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc poppler-utils
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            imports/**/*.docx
+            imports/**/*.pdf
+      
+      - name: Import Word documents
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          DOC_TYPE: ${{ github.event.inputs.type || 'regulation' }}
+        run: |
+          # Process Word files
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ "$file" == *.docx ]]; then
+              echo "Processing Word file: $file"
+              
+              # Determine output directory
+              if [ "$DOC_TYPE" = "contract" ]; then
+                OUTPUT_DIR="templates/contracts"
+              else
+                OUTPUT_DIR="templates/regulations"
+              fi
+              
+              # Generate output filename
+              BASENAME=$(basename "$file" .docx)
+              OUTPUT_NAME=$(echo "$BASENAME" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
+              OUTPUT_FILE="$OUTPUT_DIR/${OUTPUT_NAME}.md"
+              
+              # Create output directory
+              mkdir -p "$OUTPUT_DIR"
+              
+              # Convert to Markdown
+              pandoc "$file" \
+                -f docx \
+                -t markdown \
+                -o "$OUTPUT_FILE" \
+                --extract-media="$OUTPUT_DIR/media" \
+                --wrap=none
+              
+              echo "✓ Converted: $file → $OUTPUT_FILE"
+            fi
+          done
+      
+      - name: Import PDF documents
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          DOC_TYPE: ${{ github.event.inputs.type || 'regulation' }}
+        run: |
+          # Process PDF files
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ "$file" == *.pdf ]]; then
+              echo "Processing PDF file: $file"
+              
+              # Determine output directory
+              if [ "$DOC_TYPE" = "contract" ]; then
+                OUTPUT_DIR="templates/contracts"
+              else
+                OUTPUT_DIR="templates/regulations"
+              fi
+              
+              # Generate output filename
+              BASENAME=$(basename "$file" .pdf)
+              OUTPUT_NAME=$(echo "$BASENAME" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
+              OUTPUT_FILE="$OUTPUT_DIR/${OUTPUT_NAME}.md"
+              
+              # Create output directory
+              mkdir -p "$OUTPUT_DIR"
+              
+              # Create frontmatter
+              cat > "$OUTPUT_FILE" << EOF
+          ---
+          id: template-${OUTPUT_NAME}-001
+          title: ${BASENAME}
+          type: $(basename "$OUTPUT_DIR" | sed 's/s$//')
+          version: 1.0
+          category: $(basename "$OUTPUT_DIR" | sed 's/s$//')
+          applicable_to:
+            - 全従業員
+          created_by: imported
+          created_at: $(date +%Y-%m-%d)
+          review_frequency: annual
+          next_review: $(date -d "+1 year" +%Y-%m-%d)
+          tags: [$(basename "$OUTPUT_DIR" | sed 's/s$//'), imported]
+          source:
+            imported_from: $file
+            imported_date: $(date +%Y-%m-%d)
+          ---
+          
+          EOF
+              
+              # Convert to text and append
+              pdftotext -layout "$file" - >> "$OUTPUT_FILE"
+              
+              echo "✓ Converted: $file → $OUTPUT_FILE"
+            fi
+          done
+      
+      - name: Run textlint
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          npm run lint:fix || true
+          npm run lint
+      
+      - name: Create Pull Request
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feat: Import documents from imports/"
+          title: "Import: Convert Word/PDF to Markdown"
+          body: |
+            ## 概要
+            
+            `imports/` ディレクトリに追加された文書をMarkdownに変換しました。
+            
+            ## 変換されたファイル
+            
+            ${{ steps.changed-files.outputs.all_changed_files }}
+            
+            ## 確認事項
+            
+            - [ ] 変換結果の内容確認
+            - [ ] フロントマターの調整
+            - [ ] textlintエラーの確認
+            
+            ## 注意
+            
+            PDFからの変換は構造が保持されない場合があります。手動での修正が必要です。
+          branch: auto-import
+          delete-branch: true
+          labels: |
+            auto-import
+            needs-review
