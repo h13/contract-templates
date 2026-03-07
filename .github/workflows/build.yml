@@ -1,5 +1,8 @@
 name: Build Documents
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [main]
@@ -125,6 +128,7 @@ jobs:
           done
 
       - name: Commit generated files
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
