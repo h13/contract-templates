@@ -2,18 +2,23 @@
   "name": "contract-templates",
   "version": "1.0.0",
   "description": "契約書テンプレート管理（Markdown → Word 変換）",
+  "keywords": [
+    "contracts",
+    "legal",
+    "markdown",
+    "textlint"
+  ],
+  "license": "MIT",
+  "author": "h13",
   "scripts": {
+    "build": "pandoc contracts/*.md -o dist/ --reference-doc=templates/reference.docx",
     "lint": "textlint templates/**/*.md",
-    "lint:fix": "textlint --fix templates/**/*.md",
-    "build": "pandoc contracts/*.md -o dist/ --reference-doc=templates/reference.docx"
+    "lint:fix": "textlint --fix templates/**/*.md"
   },
   "devDependencies": {
-    "textlint": "^14.0.0",
-    "textlint-rule-preset-japanese": "^8.0.0",
-    "textlint-rule-preset-jtf-style": "^3.0.0",
-    "textlint-rule-terminology": "^4.0.0"
-  },
-  "keywords": ["contracts", "legal", "markdown", "textlint"],
-  "author": "h13",
-  "license": "MIT"
+    "textlint": "^15.7.1",
+    "textlint-rule-preset-japanese": "^10.0.4",
+    "textlint-rule-preset-jtf-style": "^3.0.3",
+    "textlint-rule-terminology": "^5.2.16"
+  }
 }
