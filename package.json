@@ -16,9 +16,9 @@
     "lint:fix": "textlint --fix templates/**/*.md"
   },
   "devDependencies": {
-    "textlint": "^15.7.1",
-    "textlint-rule-preset-japanese": "^10.0.4",
-    "textlint-rule-preset-jtf-style": "^3.0.3",
-    "textlint-rule-terminology": "^5.2.16"
+    "textlint": "15.7.1",
+    "textlint-rule-preset-japanese": "10.0.4",
+    "textlint-rule-preset-jtf-style": "3.0.3",
+    "textlint-rule-terminology": "5.2.16"
   }
 }
