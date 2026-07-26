@@ -1,19 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, type InferGetStaticPropsType } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 const base = import.meta.env.BASE_URL;
 
 export async function getStaticPaths() {
   const contracts = await getCollection('contracts');
   return contracts.map((contract) => ({
-    params: { slug: contract.slug },
+    params: { slug: contract.id },
     props: contract,
   }));
 }
 
 const contract = Astro.props;
-const { Content } = await contract.render();
+const { Content } = await render(contract);
 ---
 
 <BaseLayout title={contract.data.title || 'Untitled'}>
@@ -34,7 +34,7 @@ const { Content } = await contract.render();
         </div>
       )}
       <div class="actions">
-        <a href={`${base}/downloads/contracts/${contract.slug}.docx`} class="button" download>
+        <a href={`${base}/downloads/contracts/${contract.id}.docx`} class="button" download>
           📄 Word ダウンロード
         </a>
       </div>

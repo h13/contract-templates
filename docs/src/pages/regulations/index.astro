@@ -23,7 +23,7 @@ const regulationsByType = regulations.reduce((acc, regulation) => {
       <h2>{type ? String(type).replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Other'}</h2>
       <div class="regulation-grid">
         {regulations.map((regulation) => (
-          <a href={`${base}/regulations/${regulation.slug}/`} class="regulation-card">
+          <a href={`${base}/regulations/${regulation.id}/`} class="regulation-card">
             <h3>{regulation.data.title || 'Untitled'}</h3>
             <div class="meta">
               <span class="version">v{regulation.data.version || '1.0'}</span>

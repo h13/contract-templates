@@ -1,17 +1,17 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const regulations = await getCollection('regulations');
   return regulations.map((regulation) => ({
-    params: { slug: regulation.slug },
+    params: { slug: regulation.id },
     props: regulation,
   }));
 }
 
 const regulation = Astro.props;
-const { Content } = await regulation.render();
+const { Content } = await render(regulation);
 ---
 
 <BaseLayout title={regulation.data.title || 'Untitled'}>
