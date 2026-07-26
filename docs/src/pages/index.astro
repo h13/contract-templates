@@ -43,14 +43,14 @@ const stats = {
     <h2>最近追加されたテンプレート</h2>
     <div class="template-list">
       {contracts.slice(0, 5).map((contract) => (
-        <a href={`${base}/contracts/${contract.slug}`} class="template-card">
+        <a href={`${base}/contracts/${contract.id}`} class="template-card">
           <h3>{contract.data.title}</h3>
           <p>タイプ: {contract.data.type}</p>
           <p>作成日: {contract.data.created_at}</p>
         </a>
       ))}
       {regulations.slice(0, 5).map((regulation) => (
-        <a href={`${base}/regulations/${regulation.slug}`} class="template-card">
+        <a href={`${base}/regulations/${regulation.id}`} class="template-card">
           <h3>{regulation.data.title}</h3>
           <p>タイプ: {regulation.data.type}</p>
           <p>作成日: {regulation.data.created_at}</p>
