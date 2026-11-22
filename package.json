@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "textlint": "15.8.0",
-    "textlint-rule-preset-japanese": "10.0.4",
+    "textlint-rule-preset-japanese": "10.1.0",
     "textlint-rule-preset-jtf-style": "3.0.3",
     "textlint-rule-terminology": "5.2.16"
   }
